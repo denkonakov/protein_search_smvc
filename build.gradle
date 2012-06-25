@@ -1,0 +1,73 @@
+apply plugin: 'groovy'
+apply plugin: 'war'
+
+// Custom source tree for this project
+// Probably it is bad I do not follow the 'standart' Gradle groovy project
+// layout. This is why the build process of the WAR file needs some tweaks.
+sourceSets {
+	main {
+		java {
+			srcDir 'src'
+		}
+		
+		groovy {
+			srcDir 'groovy'
+		}
+		
+		resources {
+			srcDir 'resources'
+		}
+	}
+	
+	test {
+		java {
+			srcDir 'test/java'
+		}
+		
+		groovy {
+			srcDir 'test/groovy'
+		}
+	}
+}
+
+// Repos for the Dependency Management
+repositories {
+	mavenCentral()
+ 
+	maven {
+		url 'http://www.springsource.com/repository/'
+	}
+}
+
+dependencies {
+	compile 'org.springframework:spring-webmvc:3.1.0.RELEASE'
+	compile 'log4j:log4j:1.2.9'
+	compile 'org.apache.velocity:velocity:1.7'
+	compile 'junit:junit:4.8.2'
+	compile 'com.hazelcast:hazelcast:2.0.2'
+	
+	groovy  'org.codehaus.groovy:groovy:1.8.3'
+}
+
+// ------------------------ Build tasks ----------------------------------------------------
+// Groovy should be compiled first but by default there is inverted sequence
+compileGroovy.taskDependencies.values = compileGroovy.taskDependencies.values - 'compileJava'
+
+// We use non-standart layout, so, we have to redirect our destination DIR
+compileGroovy {
+	destinationDir = file("$buildDir/classes")
+}
+
+compileJava {
+	dependsOn(compileGroovy)
+	classpath = classpath + files("$buildDir/classes")
+	destinationDir = file("$buildDir/classes")
+}
+
+// Add additional resources to WAR
+war {
+	from("$buildDir/classes") {
+		into('WEB-INF/classes')
+	}
+	from 'WebContent'
+}

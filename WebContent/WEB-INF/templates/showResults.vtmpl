@@ -1,0 +1,57 @@
+<html>
+	<head>
+		<script src="$contextPath/js/jquery-1.7.2.min.js"></script>
+		
+		<!-- For translation into the 'right' URL -->
+		<script language="javascript" type="text/javascript">
+			<!--
+			$(document).ready(function() {
+				$('#searchProteinSubmit').click(function() {
+					document.location.href='$contextPath/protein/'+$('#proteinId').val();
+				});
+			});
+			// -->
+		</script>
+	</head>
+
+	<body>
+		<div id="searchForm">
+			#springMessage("protein.search.form.proteinId"):&nbsp;<input type="text" name="proteinId" id="proteinId"/>
+			&nbsp;<input type="button" id="searchProteinSubmit" value="#springMessage('protein.search.form.submit')" /><br/>
+		</div>
+		
+		#if ($protein)
+			<br/> 
+			<h3>#springMessage('protein.base.protein.info')</h3>
+			<b>#springMessage('protein.base.protein.info.name'):</b>&nbsp;#if($protein.name)$protein.name#else#springMessage('protein.no.data')#end<br/>
+			<b>#springMessage('protein.base.protein.info.full_name'):</b>&nbsp;#if($protein.full_name)$protein.full_name#else#springMessage('protein.no.data')#end<br/>
+			<b>#springMessage('protein.base.protein.info.short_name'):</b>&nbsp;#if($protein.short_name)$protein.short_name#else#springMessage('protein.no.data')#end<br/>
+			<b>#springMessage('protein.base.protein.info.organism'):</b>&nbsp;#if($protein.organism)$protein.organism#else#springMessage('protein.no.data')#end<br/>
+			<b>#springMessage('protein.base.protein.info.comment'):</b>&nbsp;#if($protein.comment)$protein.comment#else#springMessage('protein.no.data')#end<br/>
+			<br/>
+			
+			#if ($protein.proteins)
+				<h3>#springMessage('protein.list.protein.table')</h3>
+				<div id="proteinTable">
+					<table>
+						<thead>
+							<td>#springMessage('protein.list.protein.id')</td>
+							<td>#springMessage('protein.list.protein.name')</td>
+							<td>#springMessage('protein.list.protein.full_name')</td>
+						</thead>
+						
+						<tbody>
+						#foreach( $prt in $protein.proteins )
+    						<tr>
+    							<td><a href="$contextPath/protein/$prt.protein_id">$prt.protein_id</a></td>
+    							<td>#if($prt.name)$prt.name#else#springMessage('protein.no.data')#end</td>
+    							<td>#if($prt.full_name)$prt.full_name#else#springMessage('protein.no.data')#end</td></tr>
+						#end
+						</tbody>
+					</table>
+				</div> 
+			#end	
+		#end
+		
+	</body>
+</html>
