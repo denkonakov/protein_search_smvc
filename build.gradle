@@ -46,6 +46,8 @@ dependencies {
 	compile 'junit:junit:4.8.2'
 	compile 'com.hazelcast:hazelcast:2.0.2'
 	
+	providedCompile 'javax.servlet:servlet-api:2.5'
+	
 	groovy  'org.codehaus.groovy:groovy:1.8.3'
 }
 
