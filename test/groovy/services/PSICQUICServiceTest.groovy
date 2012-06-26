@@ -1,5 +1,8 @@
 package services
 
+import org.springframework.context.ApplicationContext
+import org.springframework.context.support.FileSystemXmlApplicationContext
+
 import models.Protein
 import groovy.util.GroovyTestCase;
 
@@ -10,16 +13,17 @@ import groovy.util.GroovyTestCase;
  */
 class PSICQUICServiceTest extends GroovyTestCase {
 
+	private ApplicationContext textContext
+	
+	void setUp() {
+		textContext = new FileSystemXmlApplicationContext("test\\groovy\\services\\test_beans.xml")
+	}
+	
 	void testTabFile_testXml_ForQ99728() {
-		def ups = new UniProtService()
-		def c = new GlobalCachingService()
-		ups.cache = c
+		def ups = (UniProtService) textContext.getBean(UniProtService.class)
 		Protein protein = ups.getProteinInfo("Q99728")
 		
-		def psicq = new PSICQUICService()
-		psicq.cache = c
-		// TODO: better solution needed
-		psicq.ups = ups
+		def psicq = (PSICQUICService) textContext.getBean(PSICQUICService.class)
 		def list = psicq.getInteractors("Q99728")
 		
 		assertTrue (list!=null) && (list.size()==26)
@@ -27,21 +31,16 @@ class PSICQUICServiceTest extends GroovyTestCase {
 	
 	// SHould not be IndexOutOfBound Exception
 	void testTabFile_testXml_ForQ96RL1() {
-		def ups = new UniProtService()
-		def c = new GlobalCachingService()
-		ups.cache = c
+		def ups = (UniProtService) textContext.getBean(UniProtService.class)
 		Protein protein = ups.getProteinInfo("Q96RL1")
 		
-		def psicq = new PSICQUICService()
-		psicq.cache = c
-		// TODO: better solution needed
-		psicq.ups = ups
+		def psicq = (PSICQUICService) textContext.getBean(PSICQUICService.class)
 		def list = psicq.getInteractors("Q96RL1")
-		
-		assertTrue (list!=null)
+
+				assertTrue (list!=null)
 		println list.size()
 		
-		sleep(1000)
+		sleep(3000)
 		
 		list = psicq.getInteractors("Q96RL1")
 		
@@ -51,15 +50,10 @@ class PSICQUICServiceTest extends GroovyTestCase {
 
 	// Ids should be all unique
 	void testTabFile_testXml_ForO95251() {
-		def ups = new UniProtService()
-		def c = new GlobalCachingService()
-		ups.cache = c
+		def ups = (UniProtService) textContext.getBean(UniProtService.class)
 		Protein protein = ups.getProteinInfo("O95251")
 		
-		def psicq = new PSICQUICService()
-		psicq.cache = c
-		// TODO: better solution needed
-		psicq.ups = ups
+		def psicq = (PSICQUICService) textContext.getBean(PSICQUICService.class)
 		def list = psicq.getInteractors("O95251")
 		
 		assertTrue (list!=null)

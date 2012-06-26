@@ -1,5 +1,8 @@
 package services
 
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.FileSystemXmlApplicationContext
+
 import models.Protein
 import groovy.util.GroovyTestCase
 
@@ -10,8 +13,14 @@ import groovy.util.GroovyTestCase
  */
 class UniProtServiceTest extends GroovyTestCase {
 	
+	private ApplicationContext textContext
+	
+	void setUp() {
+		textContext = new FileSystemXmlApplicationContext("test\\groovy\\services\\test_beans.xml")
+	}
+	
 	void testXml_ForQ99728() {
-		def ups = new UniProtService()
+		def ups = (UniProtService) textContext.getBean(UniProtService.class)
 		Protein protein = ups.getProteinInfo("Q99728")
 		
 		assert protein!=null
@@ -24,14 +33,15 @@ class UniProtServiceTest extends GroovyTestCase {
 	
 	// This test is depends on <max-idle-seconds>5</max-idle-seconds> in hazelcast.xml
 	void testMapPurge() {
-		def ups = new UniProtService()
-		ups.cache = new GlobalCachingService()
+		def ups = (UniProtService) textContext.getBean(UniProtService.class)
+		
 		// Should see as map is filled
 		Protein protein = ups.getProteinInfo("Q99728")
+		
 		// Should be from the map
 		protein = ups.getProteinInfo("Q99728")
 		
-		sleep(1000)
+		sleep(3000)
 		
 		// Should be again filling from the internet
 		protein = ups.getProteinInfo("Q99728")

@@ -24,14 +24,8 @@ import com.hazelcast.core.IMap
 @Component
 class GlobalCachingService {
 	
-	// This is stupid, I know. 
-	// TODO: Add Spring Context to UnitTests and remove this public constructor ASAP
-	private HazelcastInstance instance
-	public GlobalCachingService() {
-		instance = Hazelcast.newHazelcastInstance(null)
-	}
-	
 	private static final Log log = LogFactory.getLog(GlobalCachingService.class)
+	private HazelcastInstance instance = Hazelcast.newHazelcastInstance(null)
 	
 	public static enum Caches {
 		PROTEINS("proteins"),
@@ -58,26 +52,28 @@ class GlobalCachingService {
 	public fillSafeMap(Caches mapToFill, String proteinId, value) {
 		log.info("--fillSafeMap:Enter--")
 		
+		// lock on the proteinID {as log as it unique across all nodes in cluster}
 		def mp = map(mapToFill)
-		def lock = instance.getLock(mp)
+		def lock = instance.getLock(proteinId)
 		
 		// Try lock this map, 'cause other processes can locked it already
 		if(lock.tryLock()) {
 			log.info("fillSafeMap:Lock acquired for updating")
 			
-			// For consistency, do all updates for this cache in distributed transaction
+			// For consistency (spread all data across other nodes in cluster), 
+			// do all updates for this cache in distributed transaction
 			def txn = instance.getTransaction()
 			txn.begin()
 			
 			try {
 				log.info("fillSafeMap:Updating in txn:"+txn)
+				
 				// Update the results
 				mp.put(proteinId, value)
 				
 				txn.commit()
 				log.info("fillSafeMap:Transaction commited")
 			} catch (Throwable t) {
-				t.printStackTrace()
 				txn.rollback()
 				log.info("fillSafeMap:Transaction rollback")
 			} finally {

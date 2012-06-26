@@ -22,6 +22,13 @@ class ProteinServices {
 	@Autowired
 	private PSICQUICService psicq
 	
+	/**
+	 * TODO: This is the perfect place to split two data lookups for different threads.
+	 * 
+	 * @param proteinId - protein ID for lookup
+	 * 
+	 * @return - filled Protein model. With list of interactors
+	 */
 	def proteinInfo(proteinId) {
 		Protein prot = ups.getProteinInfo(proteinId)
 		prot.proteins = psicq.getInteractors(proteinId)
